@@ -1,3 +1,4 @@
+from flask import send_from_directory
 import json
 import sqlite3
 import threading
@@ -6,9 +7,16 @@ from math import ceil
 
 import serial
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 ser = serial.Serial("/dev/ttyS0", 9600)
 api = Flask(__name__)
+CORS(api)
+
+
+@api.route('/<path:path>', methods=['GET'])
+def index(path):
+    return send_from_directory('public', path)
 
 
 @api.route('/data', methods=['GET'])
@@ -99,8 +107,8 @@ def storeData(sensorType, value):
 
 
 def handleLightLeds(light):
-    lightMin = 400
-    lightMax = 1000
+    lightMin = 995
+    lightMax = 1020
     ledCount = 6
 
     unit = (lightMax - lightMin) / ledCount

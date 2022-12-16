@@ -1,0 +1,64 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.2.min.js"
+        integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <h1>Hőmérséklet</h1>
+    <div id="temperature"></div>
+    <h1>Fényerősség</h1>
+    <div id="light"></div>
+
+    <script>
+        Plotly.newPlot('temperature', [{
+            y: [],
+            type: 'line',
+        }]);
+        Plotly.newPlot('light', [{
+            y: [],
+            type: 'line',
+        }]);
+
+
+        let latestTemperature = 0;
+        let latestLight = 0;
+        async function getData() {
+            let request = await fetch("http://152.66.182.62/data");
+            let data = await request.json();
+            latestTemperature = data["temperature"];
+            latestLight = data["light"];
+        }
+
+        var cnt = 0;
+        setInterval(async () => {
+            await getData()
+            Plotly.extendTraces('temperature', { y: [[latestTemperature]] }, [0]);
+            Plotly.extendTraces('light', { y: [[latestLight]] }, [0]);
+
+            cnt++;
+            if (cnt > 30) {
+                Plotly.relayout('temperature', {
+                    xaxis: {
+                        range: [cnt - 30, cnt]
+                    }
+                });
+                Plotly.relayout('light', {
+                    xaxis: {
+                        range: [cnt - 30, cnt]
+                    }
+                });
+            }
+        }, 200);
+    </script>
+</body>
+
+</html>
